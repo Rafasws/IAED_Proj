@@ -25,7 +25,7 @@ int main(){
             case 'l':{
                 char a[SIZE_AIRPORT_ID];
             /*imprimir apenas os aeroportos pedidos*/
-                while(scanf("%s",a) == 1){
+                while(scanf(" %s", a) == 1){
                     print_airport(a);
                 }
                 print_all_airports(airports_counter);
