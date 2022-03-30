@@ -1,6 +1,7 @@
 #include "main.h"
 
 Airport airports[MAX_AIRPORTS];
+Flight flights[MAX_FLIGHTS];
 int airports_counter = 0;
 Date d;
 
@@ -19,19 +20,28 @@ int main(){
                 char id[SIZE_AIRPORT_ID], country[MAX_COUTRY_NAME];
                 char city[MAX_CITY_NAME];
                 scanf(" %s %s %[^\n]", id, country, city);
-                add_airport(id, country, city, airports);
+                add_airport(id, country, city);
                 break;
             }
             case 'l':{
-                char a[SIZE_AIRPORT_ID];
-            /*imprimir apenas os aeroportos pedidos*/
-                while(scanf(" %s", a) == 1){
-                    print_airport(a);
+                char a, id[MAX_AIRPORTS][SIZE_AIRPORT_ID];
+                int i;
+                scanf("%c", &a);
+                if(a == '\n'){
+                    print_all_airports(airports_counter);
                 }
-                print_all_airports(airports_counter);
+                else{
+                    while(a != '\n'){
+                        scanf("%s", id[i]);
+                        print_airport(id[i++]);
+                        scanf("%c", &a);
+                    }
+                }
                 break;
             }
-            case 'v':
+            case 'v':{
+                
+            }
             case 'p':
             case 'c':
             case 't':{
@@ -48,50 +58,53 @@ int main(){
     }
 }
 
-void add_airport(char id[], char country[], char city[], Airport airports[]){
+void add_airport(char newid[], char country[], char city[]){
     int i = 0;
     if(airports_counter >= MAX_AIRPORTS){
         printf("too many airports\n");
         return;
     }
 
-    while(id[i] != '\0'){
-        if (id[i] < 'A' || id[i] > 'Z'){
+    while(newid[i] != '\0'){
+        if (newid[i] < 'A' || newid[i] > 'Z'){
             printf("invalid airport ID\n");
             return;
         }
         i++;
     }
     for(i = 0; i < airports_counter; i++){
-        if(!(strcmp(id, airports[i].id))){
+        if(!(strcmp(newid, airports[i].id))){
             printf("duplicate airport\n");
             return;
         }
     }
-    strcpy(airports[airports_counter].id, id);
+    strcpy(airports[airports_counter].id, newid);
     strcpy(airports[airports_counter].country, country);
     strcpy(airports[airports_counter].city, city);
-    /*Algoritmo de ordenação por ordem alfabética*/
-    printf("airport %s\n", airports[airports_counter++].id);
+    airports[airports_counter].number_flights = 0;
+    printf("airport %s\n", airports[airports_counter].id);
+    insert_airport_sorted(airports[airports_counter]);
+    airports_counter++;
 }
 
 void print_all_airports(int counter){
     int i;
     for(i = 0; i < counter; i++){
-        printf("%s %s %s\n", airports[i].id, airports[i].city, 
-        airports[i].country);
+        printf("%s %s %s %d\n", airports[i].id, airports[i].city, 
+        airports[i].country, airports[i].number_flights);
     }
 }
 
 void print_airport(char id[]){
     int i;
     for(i = 0; i < airports_counter; i++){
-        if(!(strcmp(id, airports[airports_counter].id))){
-            printf("%s %s %s\n", airports[i].id, airports[i].city, 
-            airports[i].country);
+        if(!(strcmp(id, airports[i].id))){
+            printf("%s %s %s %d\n", airports[i].id, airports[i].city, 
+            airports[i].country, airports[i].number_flights);
+            return;
         }
     }
-    printf("%s: no such airport ID", id);
+    printf("%s: no such airport ID\n", id);
 }
 
 void advance_date(int day, int month, int year){
@@ -100,4 +113,15 @@ void advance_date(int day, int month, int year){
     d.year = year;
     printf("%2.2d-%2.2d-%4.4d\n", d.day, d.month, d.year);
     /*condições de paragem de avanço de data*/
+}
+
+void insert_airport_sorted(Airport ap){ 
+    int i;
+
+    for(i = airports_counter - 1; 
+    (i >= 0 && (strcmp(ap.id,airports[i].id) < 0)); i--){
+        airports[i + 1] = airports[i];
+    }
+        
+    airports[i + 1] = ap;
 }
