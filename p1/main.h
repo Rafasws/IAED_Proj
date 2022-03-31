@@ -35,24 +35,26 @@ typedef struct Flight{
     int capacity;
 }Flight;
 
-int add_airport(char id[], char country[], char city[]);
+void add_airport();
 
-void print_all_airports(int counter);
+void print_airports();
 
-void print_airport(char id[]);
+void print_all_airports();
 
-void advance_date(int day, int month, int year);
+int verify_airport(char ap[]);
 
-void insert_airport_sorted(Airport key);
+void print_one_airport(char id[]);
+
+void insert_airport_sorted(Airport ap);
+
+void flights_actions();
 
 void print_all_flights();
 
 int add_flight(Flight flight);
 
-void print_flights_dp_airport(char ap[]);
+void print_flights_dp_airport();
 
-void print_flights_ar_airport(char ap[]);
+void print_flights_ar_airport();
 
-void merge(int arr[], int l, int m, int r);
-
-void mergeSort(int arr[], int l, int r);
+void advance_date();

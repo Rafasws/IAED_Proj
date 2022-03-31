@@ -9,8 +9,8 @@ int date_to_min(int date, int day, int month, int year){
         time += days[i] * 24 * 60;
     }
     time += (year - 2022) * 365 * 24 * 60;
-
-    if(time < date && time > date + ONE_YEAR_MINUTES){
+    
+    if(time < date || time > date + ONE_YEAR_MINUTES){
         return -1;
     }
 
