@@ -1,0 +1,11 @@
+9c9
+< flight alredy exists
+---
+> flight already exists
+11a12,13
+> invalid date
+> invalid date
+15d16
+< AA1112 AAB AAC 01-01-2022 -09:-10
+18d18
+< AA1112 AAB AAC 02-01-2023 14:50
