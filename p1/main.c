@@ -188,22 +188,12 @@ int add_flight(Flight flight){
             return -1;
         }
     }
-    for(i = 0; i < airports_counter; i++){
-        if(!(strcmp(flight.ap_departure, airports[i].id))){
-            airports[i].number_flights++;
-            break;
-        }
-    }
-    if(!(i < airports_counter)){
+
+    if(verify_airport (flight.ap_departure) == -1){
         printf("%s: no such airport ID\n", flight.ap_departure);
         return -1;
     }
-    for(i = 0; i < airports_counter; i++){
-        if(!(strcmp(flight.ap_arrival, airports[i].id))){
-            break;
-        }
-    }
-    if(!(i < airports_counter)){
+    if(verify_airport (flight.ap_arrival) == -1){
         printf("%s: no such airport ID\n", flight.ap_arrival);
         return -1;
     }
