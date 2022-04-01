@@ -10,7 +10,7 @@ int date_to_min(int date, int day, int month, int year){
     }
     time += (year - 2022) * 365 * 24 * 60;
     
-    if(time < date || time > date + ONE_YEAR_MINUTES){
+    if(time < date || time > date + ONE_YEAR_MINUTES || time > 1049760){
         return -1;
     }
 
@@ -40,12 +40,3 @@ void min_to_date(int minutes, int res[]){
     res[1] = minutes;
     return;  
 }
-/*int main(){
-    int time, res[5]; 
-    time = duration_to_min(12,1);
-    printf("%d\n", time);
-    min_to_date(time, res);
-    printf("%d-%d-%d %d:%d \n", res[2], res[3], res[4], res[0], res[1]);
-    return 0;
-
-}*/

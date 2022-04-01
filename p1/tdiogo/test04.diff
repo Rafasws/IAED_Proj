@@ -1,0 +1,7 @@
+1,3c1,2
+< invalid airport ID
+< LX: no such airport ID
+< A: no such airport ID
+---
+> airport LX
+> flight already exists

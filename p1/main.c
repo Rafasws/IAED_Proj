@@ -50,6 +50,10 @@ void add_airport(){
         }
         i++;
     }
+    if(!(strlen(newid) == 3)){
+        printf("invalid airport ID\n");
+        return;
+    }
     if(airports_counter >= MAX_AIRPORTS){
         printf("too many airports\n");
         return;
@@ -162,6 +166,12 @@ int add_flight(Flight flight){
                 return -1;
             }
         }
+        else if(i == 2){
+            if (flight.code[i] < '1' || flight.code[i] > '9'){
+                printf("invalid flight code\n");
+                return -1;
+            }
+        }
         else{
             if (flight.code[i] < '0' || flight.code[i] > '9'){
                 printf("invalid flight code\n");
@@ -180,6 +190,7 @@ int add_flight(Flight flight){
     }
     for(i = 0; i < airports_counter; i++){
         if(!(strcmp(flight.ap_departure, airports[i].id))){
+            airports[i].number_flights++;
             break;
         }
     }
@@ -208,7 +219,7 @@ int add_flight(Flight flight){
         printf("invalid duration\n");
         return -1;
     }
-    if(flight.capacity > MAX_CAPACITY && flight.capacity < MIN_CAPACITY){
+    if(flight.capacity > MAX_CAPACITY && flight.capacity <= MIN_CAPACITY){
         printf("invalid capacity\n");
         return -1;
     }
