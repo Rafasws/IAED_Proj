@@ -7,28 +7,25 @@
 
 #define MAX_AIRPORTS 40
 #define MAX_FLIGHTS 30000
-#define MAX_CITY_NAME 51
-#define MAX_COUTRY_NAME 31
-#define SIZE_AIRPORT_ID 4
-#define MAX_SIZE_FLIGHT_CODE 7
+#define MAX_CITY_NAME 50
+#define MAX_COUTRY_NAME 30
+#define SIZE_AIRPORT_ID 3
+#define MAX_SIZE_FLIGHT_CODE 6
 #define MAX_CAPACITY 100
 #define MIN_CAPACITY 10
-#define FRIST_DAY 1
-#define FRIST_MONTH 1
-#define FRIST_YEAR 2022
 #define TWELVE_HOURS_MINUTES 720
 
 typedef struct Airport{
-    char id[SIZE_AIRPORT_ID];
-    char country[MAX_COUTRY_NAME];
-    char city[MAX_COUTRY_NAME];
+    char id[SIZE_AIRPORT_ID + 1];
+    char country[MAX_COUTRY_NAME + 1];
+    char city[MAX_COUTRY_NAME + 1];
     int number_flights;
 } Airport;
 
 typedef struct Flight{
-    char code[MAX_SIZE_FLIGHT_CODE];
-    char ap_departure[SIZE_AIRPORT_ID];
-    char ap_arrival[SIZE_AIRPORT_ID];
+    char code[MAX_SIZE_FLIGHT_CODE + 1];
+    char ap_departure[SIZE_AIRPORT_ID + 1];
+    char ap_arrival[SIZE_AIRPORT_ID + 1];
     int date;
     int hour;
     int duration;

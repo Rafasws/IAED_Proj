@@ -41,7 +41,7 @@ int main(){
 
 void add_airport(){
     int i = 0;
-    char newid[SIZE_AIRPORT_ID], country[MAX_COUTRY_NAME], city[MAX_CITY_NAME];
+    char newid[SIZE_AIRPORT_ID + 1], country[MAX_COUTRY_NAME + 1], city[MAX_CITY_NAME +1];
     scanf(" %s %s %[^\n]", newid, country, city);
     while(newid[i] != '\0'){
         if (newid[i] < 'A' || newid[i] > 'Z'){
@@ -50,7 +50,7 @@ void add_airport(){
         }
         i++;
     }
-    if(!(strlen(newid) == 3)){
+    if(!(strlen(newid) == SIZE_AIRPORT_ID)){
         printf("invalid airport ID\n");
         return;
     }
@@ -82,7 +82,7 @@ void print_all_airports(){
 }
 
 void print_airports(){
-    char a, id[MAX_AIRPORTS][SIZE_AIRPORT_ID];
+    char a, id[MAX_AIRPORTS][SIZE_AIRPORT_ID + 1];
     int i = 0;
     scanf("%c", &a);
     if(a == '\n'){
@@ -155,7 +155,7 @@ int verify_airport(char ap[]){
 int add_flight(Flight flight){
 
     int i = 0;
-    if(strlen(flight.code) > 6){
+    if(strlen(flight.code) < 3|| strlen(flight.code) > MAX_SIZE_FLIGHT_CODE){
         printf("invalid flight code\n");
             return -1;
     }
@@ -197,7 +197,7 @@ int add_flight(Flight flight){
         printf("%s: no such airport ID\n", flight.ap_arrival);
         return -1;
     }
-    if(flights_counter >= MAX_FLIGHTS){
+    if(flights_counter == MAX_FLIGHTS){
         printf("too many flights\n");
         return -1;
     }
@@ -209,9 +209,15 @@ int add_flight(Flight flight){
         printf("invalid duration\n");
         return -1;
     }
-    if(flight.capacity > MAX_CAPACITY && flight.capacity <= MIN_CAPACITY){
+    if(flight.capacity > MAX_CAPACITY && flight.capacity < MIN_CAPACITY){
         printf("invalid capacity\n");
         return -1;
+    }
+    for(i = 0; i < airports_counter; i++){
+        if(!(strcmp(flights[flights_counter].ap_departure, airports[i].id))){
+            ++airports[i].number_flights;
+            break;
+        }
     }
     strcpy(flights[flights_counter].code, flight.code);
     strcpy(flights[flights_counter].ap_departure, flight.ap_departure);
@@ -236,7 +242,7 @@ void print_all_flights(){
 
 void print_flights_dp_airport(){
     int i, j = 0, k, w, arr[MAX_FLIGHTS], res[5];
-    char ap[SIZE_AIRPORT_ID];
+    char ap[SIZE_AIRPORT_ID + 1];
     scanf(" %s", ap);
     if(verify_airport(ap) == -1){
         printf("%s: no such airport ID\n", ap);
@@ -264,7 +270,7 @@ void print_flights_dp_airport(){
 }
 void print_flights_ar_airport(){
     int i, j = 0, k, w, arr[MAX_FLIGHTS], res[5];
-    char ap[SIZE_AIRPORT_ID];
+    char ap[SIZE_AIRPORT_ID + 1];
     scanf(" %s", ap);
     if(verify_airport(ap) == -1){
         printf("%s: no such airport ID\n", ap);
@@ -279,7 +285,7 @@ void print_flights_ar_airport(){
         w = i - 1;
         while (w >= 0 && ((flights[arr[w]].hour + flights[arr[w]].date + flights[arr[w]].duration) > (flights[k].hour + flights[k].date + flights[k].duration))){
             arr[w + 1] = arr[w];
-            w --;
+            w--;
         }
         arr[w + 1] = k;
     }  
@@ -291,9 +297,10 @@ void print_flights_ar_airport(){
     }
 }
 void advance_date(){
-    int day, month, year;
+    int day, month, year, time;
     scanf(" %d-%d-%d", &day, &month, &year);
-    if(date_to_min(init_date, day, month, year) == -1){
+    time = date_to_min(init_date, day, month, year);
+    if(time == -1 || time > init_date + ONE_YEAR_MINUTES){
         printf("invalid date\n");
     }
     else{

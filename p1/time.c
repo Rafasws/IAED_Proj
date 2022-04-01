@@ -10,7 +10,7 @@ int date_to_min(int date, int day, int month, int year){
     }
     time += (year - 2022) * 365 * 24 * 60;
     
-    if(time < date || time > date + ONE_YEAR_MINUTES || time > 1049760){
+    if(time < date){
         return -1;
     }
 
