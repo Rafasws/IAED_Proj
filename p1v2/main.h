@@ -17,13 +17,28 @@
 #include<stdlib.h>
 #include<ctype.h>
 
+/* Maximum number of airports in the system. */
 #define MAX_AIRPORTS 40
+
+/* Maximum number of flights the system. */
 #define MAX_FLIGHTS 30000
+
+/* Maximum size of the city name. */
 #define MAX_CITY_NAME 50
+
+/* Maximum size of the country name. */
 #define MAX_COUTRY_NAME 30
+
+/* Maximum size of the airport identefior. */
 #define SIZE_AIRPORT_ID 3
+
+/* Maximum size of the flight code. */
 #define SIZE_FLIGHT_CODE 6
+
+/* Maximum capacity of the flight. */
 #define MAX_CAPACITY 100
+
+/* Minimum capacity of the flight */
 #define MIN_CAPACITY 10
 
 typedef struct Date{
