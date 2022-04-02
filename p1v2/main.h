@@ -29,7 +29,7 @@
 /* Maximum size of the country name. */
 #define MAX_COUTRY_NAME 30
 
-/* Maximum size of the airport identefior. */
+/* Maximum size of the airport identifier. */
 #define SIZE_AIRPORT_ID 3
 
 /* Maximum size of the flight code. */
