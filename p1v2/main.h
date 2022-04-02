@@ -1,9 +1,21 @@
+/*
+ * File: main.h
+ *
+ * Author: Rafael Gaspar Ferreira (ist197342)
+ * E-mail: rafael.gaspar@tecnico.ulisboa.pt
+ *
+ * Description:
+ * The goal of this project is the development of
+ * a flights management system in the C programming language.
+ * This file provides the used librarys, all macros, the defenition of new 
+ * structs and the prototypes of the functions.
+ *
+ * This is project 1 for subject IAED of course LEIC-T.
+ */
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
 #include<ctype.h>
-
-#include "time.h"
 
 #define MAX_AIRPORTS 40
 #define MAX_FLIGHTS 30000

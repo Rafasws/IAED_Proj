@@ -1,11 +1,33 @@
+/*
+ * File: main.c
+ *
+ * Author: Rafael Gaspar Ferreira (ist197342)
+ * E-mail: rafael.gaspar@tecnico.ulisboa.pt
+ *
+ * Description:
+ * The goal of this project is the development of
+ * a flights management system in the C programming language.
+ *
+ * This is project 1 for subject IAED of course LEIC-T.
+ */
 #include "main.h"
 
+/* Array of structures that represent the airports in the system, in alphabetic order. */
 Airport airports[MAX_AIRPORTS];
+
+/* Array of structures that represent the flights in the system, in order of creation. */
 Flight flights[MAX_FLIGHTS];
+
+/* The number of airports currently being stored in the system. */
 int airports_counter = 0;
+
+/* The number of flights currently being stored in the system. */
 int flights_counter = 0;
+
+/* Current date in the system*/
 Date init_date;
 
+/* Reads a char, and call the function of the command. */
 int main(){
     char command;
     init_date.day = 1;
