@@ -179,6 +179,7 @@ void add_flight(Flight flight){
     flights[flights_counter].duration.hour = flight.duration.hour;
     flights[flights_counter].duration.minute = flight.duration.minute;
     flights[flights_counter].capacity = flight.capacity;
+    airports[exist_airport(flight.ap_departure)].number_flights++;
     flights_counter++;
 }
 int verify_input_cmd_v(Flight flight){
