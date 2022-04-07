@@ -65,7 +65,7 @@ int main(){
 void command_a(){
     char id[SIZE_AIRPORT_ID + 1];
     char country[MAX_COUTRY_NAME + 1], city[MAX_CITY_NAME +1];
-    scanf("%s %s %[^\n]", id, country, city);
+    scanf("%s %s %[^\n]s", id, country, city);
     if(verify_input_cmd_a(id) == -1){
         return;
     }
