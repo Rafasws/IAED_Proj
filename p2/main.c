@@ -102,18 +102,23 @@ void command_l(){
 void command_v(){
     char a;
     ptrFlight flight;
-    flight = (ptrFlight) malloc(sizeof(struct Flight));
     scanf("%c", &a);
     if(a == '\n'){
         print_all_flights();
     }
     else{
+        flight = (ptrFlight) malloc(sizeof(struct Flight));
+        if(flight == NULL){
+            printf("no memory.\n");
+            exit(0);
+        }
         scanf("%s %s %s %d-%d-%d %d:%d %d:%d %d", 
         flight->code, flight->ap_departure, flight->ap_arrival, 
         &flight->date.day, &flight->date.month, &flight->date.year, 
         &flight->hours.hour, &flight->hours.minute, &flight->duration.hour, 
         &flight->duration.minute, &flight->capacity);
         if(verify_input_cmd_v(flight) == -1){
+            free(flight);
             return;
         }
         add_flight(flight);
@@ -128,7 +133,7 @@ void command_p(){
         printf("%s: no such airport ID\n", ap);
         return;
     }
-    for(i = 0; i < MAX_FLIGHTS; i++){
+    for(i = 0; i < (2*MAX_FLIGHTS); i++){
         if(flights[i] != NULL){
             if(!(strcmp(flights[i]->ap_departure, ap))){
                 f[len++] = i;
@@ -167,7 +172,7 @@ void command_c(){
         printf("%s: no such airport ID\n", ap);
         return;
     }
-    for(i = 0; i < MAX_FLIGHTS; i++){
+    for(i = 0; i < (2*MAX_FLIGHTS); i++){
         if(flights[i] != NULL){
             if(!(strcmp(flights[i]->ap_arrival, ap))){
                 f[len] = new_date(flights[i]);
@@ -246,7 +251,7 @@ int verify_input_cmd_v(ptrFlight flight){
         printf("invalid flight code\n");
         return -1;
     }
-    if(FLsearch(flight->code, flight->date) != NULL){
+    if(FLsearch_date(flight->code, flight->date) != NULL){
         printf("flight already exists\n");
         return -1;
     }
@@ -343,7 +348,13 @@ void print_all_flights(){
 void add_flight(ptrFlight flight){
     int i;
     flight->quantity = 0;
-    flight->reservations = (ptrReservation *)malloc(sizeof(ptrReservation)* flight->capacity);
+    flight->n_reserves = 0;
+    flight->reservations = (ptrReservation *)malloc(sizeof(ptrReservation)* 
+    flight->capacity);
+    if( flight->reservations== NULL){
+        printf("no memory.\n");
+        exit(0);
+    }
     for(i = 0; i < flight->capacity; i++){
         flight->reservations[i] = NULL;
     }
@@ -488,47 +499,95 @@ struct Flight new_date(ptrFlight f){
     }
     return newflight;
 }
-void command_r(){
+int verify_input_cmd_r(ptrFlight f,char*flight_code, Date d, char *code, int n){
+    if(verify_reservation_code(code) == -1){
+        printf("invalid reservation code\n");
+        return -1;
+    }
+    if(f == NULL){
+        printf("%s: flight does not exist\n", flight_code);
+        return -1;
+    }
+    if(RVsearch(code) != NULL){
+        printf("%s: flight reservation already used\n", code);
+        return -1;    
+    }
+    if((f->quantity + n) > f->capacity){
+        printf("too many reservations\n");
+        return -1;
+    }
+    if(verify_date(d) == -1){
+        printf("invalid date\n");
+        return -1;
+    }
+    if(n <= 0){
+        printf("invalid passenger number\n");
+        return -1;
+    }
+    return 0;
+}
+void print_reservations(ptrFlight flight){
     int i;
+    for(i = 0; i < flight->n_reserves; i++){
+        if(flight->reservations[i] == NULL){
+            break;
+        }
+        printf("%s %d\n", flight->reservations[i]->reservation_code, 
+        flight->reservations[i]->number_passangers);
+    }
+}
+void command_r(){
     char a, flight_code[SIZE_FLIGHT_CODE + 1];
     Date data;
     ptrFlight flight;
     scanf("%s %d-%d-%d", flight_code, &data.day, &data.month, &data.year);
-    flight = FLsearch(flight_code, data);
+    flight = FLsearch_date(flight_code, data);
     scanf("%c", &a);
     if(a == '\n'){
         if(flight == NULL){
             printf("%s: flight does not exist\n", flight_code);
             return;
         }
-        for(i = 0; i < flight->capacity; i++){
-            if(flight->reservations[i]==NULL){
-                break;
-            }
-            printf("%s %d\n", flight->reservations[i]->reservation_code, 
-            flight->reservations[i]->number_passangers);
+        if(verify_date(data) == -1){
+            printf("invalid date\n");
+            return;
         }
+        print_reservations(flight);
     }
     else{
         char *code;
         int number_passangers;
-        ptrReservation reserva;
         code = read_reservation_code();
         scanf("%d", &number_passangers);
-        reserva = (ptrReservation) malloc(sizeof( struct Reservation));
-        reserva->reservation_code = code;
-        reserva->date = data;
-        strcpy(reserva->flight_code, flight_code);
-        reserva->number_passangers = number_passangers;
-        flight->quantity += number_passangers;
-        RVinsert(reserva);
-        for(i = 0; i < flight->capacity; i++){
-            if(flight->reservations[i] == NULL){
-                flight->reservations[i] = reserva;
-                break;
-            }
+        
+        if(verify_input_cmd_r(flight,flight_code, data, code, number_passangers) == -1){
+            free(code);
+            return;
         }
+        add_reservation(flight, data, code, number_passangers);
     }
+}
+void add_reservation(ptrFlight f, Date d, char *code, int n){
+    ptrReservation reserva;
+    int i;
+    reserva = (ptrReservation) malloc(sizeof( struct Reservation));
+    if(reserva == NULL){
+      printf("no memory.\n");
+      exit(0);
+   }
+    reserva->reservation_code = code;
+    reserva->date = d;
+    reserva->flight_code = f->code;
+    reserva->number_passangers = n;
+    f->quantity += n;
+    f->reservations[f->n_reserves] = reserva;
+    RVinsert(reserva);
+    for(i = f->n_reserves - 1; 
+    (i >= 0 && (strcmp(code,f->reservations[i]->reservation_code) < 0)); i--){
+        f->reservations[i + 1] = f->reservations[i];
+    }   
+    f->reservations[i + 1] = reserva;
+    f->n_reserves++;
 }
 char *read_reservation_code(){
     char b;
@@ -536,20 +595,25 @@ char *read_reservation_code(){
     char *code, buffer[11];
     scanf("%10s", buffer);
     i = i + strlen(buffer);
-    code = (char *) malloc(sizeof(char)*i);
+    code = (char *) malloc(sizeof(char)*(i+1));
+    if(code == NULL){
+        printf("no memory.\n");
+        exit(0);
+    }
     strcpy(code,buffer);
-    while(i%10 == 0){
+    while(strlen(buffer) == 10){
         scanf("%c", &b);
-        if(b == ' '){
+        if(b == ' ' || b == '\n'){
             break;
         }
         else{
-            strcat(buffer, &b);
+            buffer[0] =b;
+            buffer[1] ='\0';
+            scanf("%9[^\n,' ']", buffer+1);
+            i = i + strlen(buffer);
+            code = (char *) realloc(code, sizeof(char)*(i+1));
+            strcat(code, buffer);
         }
-        scanf("%9[^\n,' ']", buffer);
-        i = i + strlen(buffer);
-        code = (char *) realloc(code, sizeof(char)*i);
-        strcat(code, buffer);
     }
     return code;
 }
@@ -557,29 +621,19 @@ char *read_reservation_code(){
 void command_e(){
     char *code = read_reservation_code();
     if(strlen(code) < 10){
-        if(verify_flight_code(code) == -1){
+        if(FLdelete(code) == -1){
             printf("not found\n");
-            return;
         }
-        if(FLsearch(code) == NULL){
-            printf("not found\n");
-            return;
+        else{
+            flights_counter--;
         }
-        
-        FLdelete(code);
     }
     else{
-        if(verify_reservation_code(code) == -1){
+        if(RVdelete_reservation(code) == -1){
             printf("not found\n");
-            return;
         }
-        if(RVsearch(code) == NULL){
-            printf("not found\n");
-            return;
-        }
-
-        RVdelete(code);
     }
+    free(code);
 }
 int verify_reservation_code(char *code){
     int i;
@@ -587,8 +641,8 @@ int verify_reservation_code(char *code){
         return -1;
     }
     for(i = 0; i < (int) strlen(code); i++){
-        if(!(code[i] >= '0' && code[i] <= '9') ||
-        (code[i] >= 'A' && code[i] <= 'Z')){
+        if(!((code[i] >= '0' && code[i] <= '9') ||
+        (code[i] >= 'A' && code[i] <= 'Z'))){
             return -1;
         }
     }

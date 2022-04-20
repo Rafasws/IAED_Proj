@@ -14,7 +14,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
-#include "FLtable.h"
+#include "RVtable.h"
 
 /* Implements the 'a' command, that adds a new airport to the system.*/
 void command_a();
@@ -101,3 +101,9 @@ char *read_reservation_code();
 void command_e();
 
 int verify_reservation_code(char *);
+
+void add_reservation(ptrFlight, Date, char *, int);
+
+int verify_input_cmd_r(ptrFlight,char *, Date, char *, int);
+
+void print_reservations(ptrFlight);

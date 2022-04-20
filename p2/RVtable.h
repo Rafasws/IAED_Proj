@@ -15,4 +15,21 @@ ptrReservation RVsearch(char *);
 
 int RVdelete(char *);
 
+int RVdelete_reservation(char *);
+
 void RVdestroy();
+
+
+ptrFlight *FLinit();
+
+void FLinsert(ptrFlight);
+
+void FLexpand();
+
+ptrFlight FLsearch_date(char *, Date);
+
+ptrFlight FLsearch(char *code);
+
+int FLdelete(char *);
+
+void FLdestroy();

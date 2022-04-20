@@ -17,7 +17,7 @@
 #define MAX_AIRPORTS 40
 
 /* Maximum number of flights the system. */
-#define MAX_FLIGHTS 30000
+#define MAX_FLIGHTS 30
 
 /* Maximum size of the city name. */
 #define MAX_CITY_NAME 50
@@ -52,7 +52,7 @@ typedef struct Reservation{
 
    char *reservation_code;
    Date date;
-   char flight_code[SIZE_FLIGHT_CODE + 1];
+   char *flight_code;
    int number_passangers;
 
 }*ptrReservation;/* Data type that is a pointer to a struct Reservation */
@@ -75,5 +75,7 @@ typedef struct Flight{
     Time duration;
     int capacity;
     int quantity;
+    int n_reserves;
     ptrReservation *reservations;
 }*ptrFlight;
+
