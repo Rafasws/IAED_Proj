@@ -42,7 +42,7 @@ int main(){
         switch(command){
             case 'q':
                 RVdestroy();
-                FLdestroy();
+                FLdestroy(flights_counter);
                 return 0;
             case 'a':
                 command_a();
@@ -109,7 +109,9 @@ void command_v(){
     else{
         flight = (ptrFlight) malloc(sizeof(struct Flight));
         if(flight == NULL){
-            printf("no memory.\n");
+            printf("No memory.\n");
+            RVdestroy();
+            FLdestroy(flights_counter);
             exit(0);
         }
         scanf("%s %s %s %d-%d-%d %d:%d %d:%d %d", 
@@ -133,7 +135,7 @@ void command_p(){
         printf("%s: no such airport ID\n", ap);
         return;
     }
-    for(i = 0; i < (2*MAX_FLIGHTS); i++){
+    for(i = 0; i < flights_counter; i++){
         if(flights[i] != NULL){
             if(!(strcmp(flights[i]->ap_departure, ap))){
                 f[len++] = i;
@@ -172,7 +174,7 @@ void command_c(){
         printf("%s: no such airport ID\n", ap);
         return;
     }
-    for(i = 0; i < (2*MAX_FLIGHTS); i++){
+    for(i = 0; i < flights_counter; i++){
         if(flights[i] != NULL){
             if(!(strcmp(flights[i]->ap_arrival, ap))){
                 f[len] = new_date(flights[i]);
@@ -251,7 +253,7 @@ int verify_input_cmd_v(ptrFlight flight){
         printf("invalid flight code\n");
         return -1;
     }
-    if(FLsearch_date(flight->code, flight->date) != NULL){
+    if(FLsearch_date(flight->code, flight->date, flights_counter) != NULL){
         printf("flight already exists\n");
         return -1;
     }
@@ -336,7 +338,7 @@ int exist_airport(char ap[]){
 }
 void print_all_flights(){
     int i;
-    for(i = 0; i < (MAX_FLIGHTS); i++){
+    for(i = 0; i < flights_counter; i++){
         if(flights[i] != NULL){
             printf("%s %s %s %2.2d-%2.2d-%2.2d %2.2d:%2.2d\n", 
             flights[i]->code, flights[i]->ap_departure, flights[i]->ap_arrival,
@@ -351,15 +353,17 @@ void add_flight(ptrFlight flight){
     flight->n_reserves = 0;
     flight->reservations = (ptrReservation *)malloc(sizeof(ptrReservation)* 
     flight->capacity);
-    if( flight->reservations== NULL){
-        printf("no memory.\n");
+    if(flight->reservations == NULL){
+        printf("No memory.\n");
+        RVdestroy();
+        FLdestroy(flights_counter);
         exit(0);
     }
     for(i = 0; i < flight->capacity; i++){
         flight->reservations[i] = NULL;
     }
     airports[exist_airport(flight->ap_departure)].number_flights++;
-    FLinsert(flight);
+    FLinsert(flight, flights_counter);
     flights_counter++;
 }
 int verify_flight_code(char code[]){
@@ -528,10 +532,8 @@ int verify_input_cmd_r(ptrFlight f,char*flight_code, Date d, char *code, int n){
 }
 void print_reservations(ptrFlight flight){
     int i;
+    quickSort(flight->reservations, 0, flight->n_reserves - 1);
     for(i = 0; i < flight->n_reserves; i++){
-        if(flight->reservations[i] == NULL){
-            break;
-        }
         printf("%s %d\n", flight->reservations[i]->reservation_code, 
         flight->reservations[i]->number_passangers);
     }
@@ -541,7 +543,7 @@ void command_r(){
     Date data;
     ptrFlight flight;
     scanf("%s %d-%d-%d", flight_code, &data.day, &data.month, &data.year);
-    flight = FLsearch_date(flight_code, data);
+    flight = FLsearch_date(flight_code, data, flights_counter);
     scanf("%c", &a);
     if(a == '\n'){
         if(flight == NULL){
@@ -569,24 +571,20 @@ void command_r(){
 }
 void add_reservation(ptrFlight f, Date d, char *code, int n){
     ptrReservation reserva;
-    int i;
     reserva = (ptrReservation) malloc(sizeof( struct Reservation));
     if(reserva == NULL){
-      printf("no memory.\n");
-      exit(0);
-   }
+        printf("No memory.\n");
+        RVdestroy();
+        FLdestroy(flights_counter);
+        exit(0);
+    }
     reserva->reservation_code = code;
     reserva->date = d;
-    reserva->flight_code = f->code;
+    strcpy(reserva->flight_code, f->code);
     reserva->number_passangers = n;
     f->quantity += n;
     f->reservations[f->n_reserves] = reserva;
     RVinsert(reserva);
-    for(i = f->n_reserves - 1; 
-    (i >= 0 && (strcmp(code,f->reservations[i]->reservation_code) < 0)); i--){
-        f->reservations[i + 1] = f->reservations[i];
-    }   
-    f->reservations[i + 1] = reserva;
     f->n_reserves++;
 }
 char *read_reservation_code(){
@@ -597,7 +595,9 @@ char *read_reservation_code(){
     i = i + strlen(buffer);
     code = (char *) malloc(sizeof(char)*(i+1));
     if(code == NULL){
-        printf("no memory.\n");
+        printf("No memory.\n");
+        RVdestroy();
+        FLdestroy(flights_counter);
         exit(0);
     }
     strcpy(code,buffer);
@@ -620,16 +620,18 @@ char *read_reservation_code(){
 
 void command_e(){
     char *code = read_reservation_code();
+    int aux;
     if(strlen(code) < 10){
-        if(FLdelete(code) == -1){
+        aux = FLdelete(code, flights_counter);
+        if(aux == flights_counter){
             printf("not found\n");
         }
         else{
-            flights_counter--;
+            flights_counter = aux;
         }
     }
     else{
-        if(RVdelete_reservation(code) == -1){
+        if(RVdelete_reservation(code, flights_counter) == -1){
             printf("not found\n");
         }
     }
@@ -647,4 +649,37 @@ int verify_reservation_code(char *code){
         }
     }
     return 0;
+}
+
+void quickSort(ptrReservation *arr, int low, int high){
+    int pi;
+    if (low < high){
+        pi = partition(arr, low, high);
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+void swap(ptrReservation *a, ptrReservation *b){
+    ptrReservation r = *a;
+    *a = *b;
+    *b = r;
+}
+
+int partition (ptrReservation *arr, int low, int high){
+    int i = low-1;
+    int j = high;
+    ptrReservation v = arr[high];
+    while (i < j) {
+        while (strcmp(arr[++i]->reservation_code, v->reservation_code) < 0);
+        while (strcmp(v->reservation_code, arr[--j]->reservation_code) < 0){
+            if (j == low){
+                break;
+            }
+        }
+        if (i < j){
+            swap(&arr[i], &arr[j]);
+        }
+    }
+    swap(&arr[i], &arr[high]);
+    return i;
 }

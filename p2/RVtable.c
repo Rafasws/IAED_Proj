@@ -66,7 +66,7 @@ ptrReservation RVsearch(char *code){
    return NULL;
 }
 
-int RVdelete_reservation(char *code){
+int RVdelete_reservation(char *code, int n){
    int j = 0, i, w;
    ptrReservation r;
    ptrFlight v;
@@ -82,7 +82,7 @@ int RVdelete_reservation(char *code){
    if (rv[i] == NULL){
       return -1;
    }
-   v = FLsearch_date(rv[i]->flight_code,rv[i]->date);
+   v = FLsearch_date(rv[i]->flight_code,rv[i]->date, n);/*veri isto urgente*/
    for(w = 0; w < (v->n_reserves - 1); w++){
       if(v->reservations[w] != NULL){
          if(strcmp(v->reservations[w]->reservation_code, code) == 0){
@@ -114,7 +114,7 @@ int RVdelete_reservation(char *code){
 int RVdelete(char *code){
    int j, i;
    ptrReservation v;
-   i = RVhash(code, M); 
+   i = RVhash(code, M);
    while (rv[i] != NULL){
       if (strcmp(rv[i]->reservation_code, code) == 0){
          break;
@@ -149,93 +149,69 @@ void RVdestroy(){
    free(rv);
 }
 
-int FLhash(char *v){
-   int h = 0, a = 127;
-   for (; *v != '\0'; v++){
-      h = (a*h + *v) % (MAX_FLIGHTS*2);
-   }
-   return h;
-}
 ptrFlight *FLinit(){
    int i;
-   flights = (ptrFlight *) malloc(sizeof(ptrFlight)* 2* MAX_FLIGHTS);
+   flights = (ptrFlight *) malloc(sizeof(ptrFlight)* MAX_FLIGHTS);
    if(flights == NULL){
       printf("No memory.\n");
       exit(0);
    }
-   for (i = 0; i < (2*MAX_FLIGHTS); i++){
+   for (i = 0; i < MAX_FLIGHTS; i++){
       flights[i] = NULL;
    }
    return flights;
 }
 
-void FLinsert(ptrFlight flight) {
-   int i = FLhash(flight->code);
-   while (flights[i] != NULL){
-      i = (i+1) % (2*MAX_AIRPORTS);
-   }
-   flights[i] = flight;
+void FLinsert(ptrFlight flight, int n) {
+   flights[n] = flight;
 }
-ptrFlight FLsearch(char *code){
-   int i = FLhash(code);
-   while (flights[i] != NULL){
+
+int FLsearch(char *code, int n){
+   int i;
+   for(i = 0; i < n; i++){
       if((strcmp(flights[i]->code, code) == 0)){
-         return flights[i];
-      }
-      else{
-         i = (i + 1) % (2*MAX_AIRPORTS);
+         return i;
       }
    }
-   return NULL;
+   return -1;
 }
-ptrFlight FLsearch_date(char *code, Date date){
-   int i = FLhash(code);
-   while (flights[i] != NULL){
+ptrFlight FLsearch_date(char *code, Date date, int n){
+   int i;
+   for(i = 0; i < n; i++){
       if((strcmp(flights[i]->code, code) == 0) && 
       (flights[i]->date.day == date.day) && 
       (flights[i]->date.month == date.month) &&
       (flights[i]->date.year == date.year)){
          return flights[i];
       }
-      else{
-         i = (i+ 1) % (2*MAX_AIRPORTS);
-      }
    }
    return NULL;
 }
 
-int FLdelete(char *code){
-   ptrFlight v;
-   int w, j, counter = 0, i = FLhash(code); 
-   while (flights[i] != NULL){
-      for(w = 0; w < flights[i]->n_reserves; w++){
-         RVdelete(flights[i]->reservations[w]->reservation_code);
-      }
+int FLdelete(char *code, int counter){
+   int w, j, i = FLsearch(code, counter);
+   while(i > -1){ 
       if (strcmp(flights[i]->code, code) == 0){
+         for(w = 0; w < flights[i]->n_reserves; w++){
+            RVdelete(flights[i]->reservations[w]->reservation_code);
+         }
          free(flights[i]->reservations); 
          free(flights[i]); 
          flights[i] = NULL;
-         for (j = (i + 1) % (2*MAX_AIRPORTS); flights[j] != NULL;
-         j = (j +1) % (2*MAX_AIRPORTS)){
-            v = flights[j];
+         for (j = i + 1; j < counter; j++){
+            flights[j-1] = flights[j];
             flights[j] = NULL;
-            FLinsert(v);
          }
-         counter++;
+         counter--;
       }
-      else{
-         i = (i +1) % (2*MAX_AIRPORTS);
-      }
+      i = FLsearch(code, counter);
    }
-   if (counter == 0){
-      return -1;
-   }
-   return 0;
+   return counter;
 }
 
-void FLdestroy(){
+void FLdestroy(int n){
    int i;
-   for(i = 0; i < MAX_FLIGHTS; i++){
+   for(i = 0; i < n; i++){
       if(flights[i]!= NULL){
          free(flights[i]->reservations);
          free(flights[i]);

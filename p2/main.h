@@ -107,3 +107,9 @@ void add_reservation(ptrFlight, Date, char *, int);
 int verify_input_cmd_r(ptrFlight,char *, Date, char *, int);
 
 void print_reservations(ptrFlight);
+
+void quickSort(ptrReservation *arr, int low, int high);
+
+void swap(ptrReservation *a, ptrReservation *b);
+
+int partition (ptrReservation *arr, int low, int high);
