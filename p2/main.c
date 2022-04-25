@@ -110,6 +110,7 @@ void command_v(){
         flight = (ptrFlight) malloc(sizeof(struct Flight));
         if(flight == NULL){
             printf("No memory.\n");
+            free(flight);
             RVdestroy();
             FLdestroy(flights_counter);
             exit(0);
@@ -149,8 +150,8 @@ void command_p(){
                 f[i] = f[i + 1];
                 f[i + 1] = k;
             }
-            else if(equal_dates(flights[f[i]]->date, flights[f[i+1]]->date) == 0){
-                if(equal_time(flights[f[i]]->hours, flights[f[i+1]]->hours) > 0){
+            else if(equal_dates(flights[f[i]]->date,flights[f[i+1]]->date)==0){
+                if(equal_time(flights[f[i]]->hours,flights[f[i+1]]->hours)>0){
                     k = f[i];
                     f[i] = f[i + 1];
                     f[i + 1] = k;
@@ -355,6 +356,8 @@ void add_flight(ptrFlight flight){
     flight->capacity);
     if(flight->reservations == NULL){
         printf("No memory.\n");
+        free(flight->reservations);
+        free(flight);
         RVdestroy();
         FLdestroy(flights_counter);
         exit(0);
@@ -562,7 +565,8 @@ void command_r(){
         code = read_reservation_code();
         scanf("%d", &number_passangers);
         
-        if(verify_input_cmd_r(flight,flight_code, data, code, number_passangers) == -1){
+        if(verify_input_cmd_r(flight,flight_code, data, code, number_passangers)
+        == -1){
             free(code);
             return;
         }
@@ -574,6 +578,7 @@ void add_reservation(ptrFlight f, Date d, char *code, int n){
     reserva = (ptrReservation) malloc(sizeof( struct Reservation));
     if(reserva == NULL){
         printf("No memory.\n");
+        free(reserva);
         RVdestroy();
         FLdestroy(flights_counter);
         exit(0);
@@ -584,8 +589,8 @@ void add_reservation(ptrFlight f, Date d, char *code, int n){
     reserva->number_passangers = n;
     f->quantity += n;
     f->reservations[f->n_reserves] = reserva;
-    RVinsert(reserva);
     f->n_reserves++;
+    RVinsert(reserva);
 }
 char *read_reservation_code(){
     char b;
@@ -596,6 +601,7 @@ char *read_reservation_code(){
     code = (char *) malloc(sizeof(char)*(i+1));
     if(code == NULL){
         printf("No memory.\n");
+        free(code);
         RVdestroy();
         FLdestroy(flights_counter);
         exit(0);
@@ -603,15 +609,22 @@ char *read_reservation_code(){
     strcpy(code,buffer);
     while(strlen(buffer) == 10){
         scanf("%c", &b);
-        if(b == ' ' || b == '\n'){
+        if(b == ' ' || b == '	' || b == '\n'){
             break;
         }
         else{
-            buffer[0] =b;
+            buffer[0] = b;
             buffer[1] ='\0';
-            scanf("%9[^\n,' ']", buffer+1);
+            scanf("%9[^'\n', ' ', '	']", buffer+1);
             i = i + strlen(buffer);
             code = (char *) realloc(code, sizeof(char)*(i+1));
+            if(code == NULL){
+                printf("No memory.\n");
+                free(code);
+                RVdestroy();
+                FLdestroy(flights_counter);
+                exit(0);
+            }
             strcat(code, buffer);
         }
     }
@@ -622,7 +635,7 @@ void command_e(){
     char *code = read_reservation_code();
     int aux;
     if(strlen(code) < 10){
-        aux = FLdelete(code, flights_counter);
+       aux = FLdelete(code, flights_counter);
         if(aux == flights_counter){
             printf("not found\n");
         }

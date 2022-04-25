@@ -6,7 +6,7 @@ RED=$(shell tput setaf 1)
 RESET=$(shell tput op)
 OK="$(GREEN)test $< PASSED$(RESET)"
 KO="$(RED)test $< FAILED$(RESET)"
-EXE=../proj2
+EXE= ../proj2
 
 all:: clean # run regression tests
 	@$(MAKE) $(MFLAGS) `ls *.in | sed -e "s/\.in/\.diff/"`

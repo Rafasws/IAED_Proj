@@ -34,22 +34,21 @@
 /* Minimum capacity of the flight */
 #define MIN_CAPACITY 10
 
-/* New type that represents Dates */
+/* Struct that represents Dates */
 typedef struct Date{
     int day;
     int month;
     int year;
-} Date;
+} Date; /* Data type that is a struct Date */
 
-/* New type that represents Time */
+/* Struct that represents Time */
 typedef struct Time{
     int hour;
     int minute;
-}  Time;
+}  Time; /* Data type that is a struct Time */
 
-/* New type that represents Reservations */
+/* Struct that represents Reservations */
 typedef struct Reservation{
-
    char *reservation_code;
    Date date;
    char flight_code[SIZE_FLIGHT_CODE + 1];
@@ -57,15 +56,15 @@ typedef struct Reservation{
 
 }*ptrReservation;/* Data type that is a pointer to a struct Reservation */
 
-/* New type that represents Airports */
+/* Struct that represents Airports */
 typedef struct Airport{
     char id[SIZE_AIRPORT_ID + 1];
     char country[MAX_COUTRY_NAME + 1];
     char city[MAX_CITY_NAME + 1];
     int number_flights;
-} Airport;
+} Airport; /* Data type that is a struct Airport */
 
-/* New type that represents Flights */
+/* Struct that represents Flights */
 typedef struct Flight{
     char code[SIZE_FLIGHT_CODE + 1];
     char ap_departure[SIZE_AIRPORT_ID + 1];
@@ -77,5 +76,5 @@ typedef struct Flight{
     int quantity;
     int n_reserves;
     ptrReservation *reservations;
-}*ptrFlight;
+}*ptrFlight; /* Data type that is a pointer to a struct Flight */
 

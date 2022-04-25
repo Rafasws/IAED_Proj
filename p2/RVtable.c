@@ -1,8 +1,31 @@
+/*
+ * File: RVtable.c
+ *
+ * Author: Rafael Gaspar Ferreira (ist197342)
+ * E-mail: rafael.gaspar@tecnico.ulisboa.pt
+ *
+ * Description:
+ * The goal of this project is the development of
+ * a flights management system in the C programming language.
+ * This file provides the used functions related to the array of 
+ * reservatins and the array of flights.
+ *
+ * This is project 2 for subject IAED of course LEIC-T.
+ */
+
 #include"RVtable.h"
 
+/*Size of the array of ptrReservations*/
 static int M;
-static int N = 0; 
+
+/* The number of flights currently being stored in the system. */
+static int N = 0;
+
+/* Pointer to  a array of ptrReservation that represent the reservations in
+* the system. */
 static ptrReservation *rv;
+
+/* Pointer to a array of ptrFlights that represent the flights in the system.*/
 static ptrFlight *flights;
 
 int RVhash(char *v, int M){
@@ -21,7 +44,9 @@ void RVinit(int m){
    M = m;
    rv = (ptrReservation *) malloc(sizeof(ptrReservation)* M);
    if(rv == NULL){
-      printf("no memory.\n");
+      printf("No memory.\n");
+      RVdestroy();
+      FLdestroy(MAX_FLIGHTS);
       exit(0);
    }
    for (i = 0; i < M; i++){
@@ -35,10 +60,10 @@ void RVinsert(ptrReservation reserve) {
       i = (i + 1) % M;
    }
    rv[i] = reserve;
-   N++;
    if(N > M/2){
       RVexpand(M);
    }
+   N++;
 }
 
 void RVexpand(int aux){
@@ -82,19 +107,18 @@ int RVdelete_reservation(char *code, int n){
    if (rv[i] == NULL){
       return -1;
    }
-   v = FLsearch_date(rv[i]->flight_code,rv[i]->date, n);/*veri isto urgente*/
-   for(w = 0; w < (v->n_reserves - 1); w++){
+   v = FLsearch_date(rv[i]->flight_code,rv[i]->date, n);
+   for(w = 0; w < v->n_reserves; w++){
       if(v->reservations[w] != NULL){
          if(strcmp(v->reservations[w]->reservation_code, code) == 0){
             v->reservations[w] = NULL;
-            j++;
+            break;
          }
       }
-      if(j != 0){
-         v->reservations[w] = v->reservations[w + 1];
-         v->reservations[w+1] = NULL;
-      }
-      
+   }
+   for(w = w+1;w < v->n_reserves; w++){
+      v->reservations[w-1] = v->reservations[w];
+      v->reservations[w] = NULL;
    }
    v->n_reserves--;
    v->quantity -= rv[i]->number_passangers;
@@ -154,6 +178,8 @@ ptrFlight *FLinit(){
    flights = (ptrFlight *) malloc(sizeof(ptrFlight)* MAX_FLIGHTS);
    if(flights == NULL){
       printf("No memory.\n");
+      RVdestroy();
+      FLdestroy(0);
       exit(0);
    }
    for (i = 0; i < MAX_FLIGHTS; i++){
@@ -169,8 +195,10 @@ void FLinsert(ptrFlight flight, int n) {
 int FLsearch(char *code, int n){
    int i;
    for(i = 0; i < n; i++){
-      if((strcmp(flights[i]->code, code) == 0)){
-         return i;
+      if(flights[i] != NULL){
+         if((strcmp(flights[i]->code, code) == 0)){
+            return i;
+         }
       }
    }
    return -1;

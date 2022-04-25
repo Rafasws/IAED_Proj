@@ -94,20 +94,36 @@ void comm();
 
 ptrFlight existent_flight_date_code(char *, Date);
 
+/* Implements the 'r' command, that either adds a new reservation to the system,
+ * or lists the certain flights reservations.
+ */
 void command_r();
 
+/* Read a string from the standart input with unknown length,  dynamically
+ * allocates required memory and return a pointer to to that memory space.
+ */
 char *read_reservation_code();
 
+/* Implements the 'e' command, that either remove a reservation of the system,
+ * or remove certain flight and all his reservationsof the system.
+ */
 void command_e();
 
+/* Verify if a reservation code is valid*/
 int verify_reservation_code(char *);
 
+/*Add a airport to the system*/
 void add_reservation(ptrFlight, Date, char *, int);
 
+/* Verify the input of the command_r*/
 int verify_input_cmd_r(ptrFlight,char *, Date, char *, int);
 
+/*Prints flight reservations saved in th ptrFlight */
 void print_reservations(ptrFlight);
 
+/* The next and last 3 functions, it's part of the sort algorithm used
+* in the project. 
+ */
 void quickSort(ptrReservation *arr, int low, int high);
 
 void swap(ptrReservation *a, ptrReservation *b);
